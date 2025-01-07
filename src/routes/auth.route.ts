@@ -1,9 +1,12 @@
 import { Router } from "express";
+import { registerHandler } from "../controllers/auth.controller";
 
-const router = Router();
+const authRoutes = Router();
 
-router.get("/", (req, res) => {
+authRoutes.get("/", (req, res) => {
   res.send("Hello from auth route GET method");
 });
 
-export default router;
+authRoutes.post("/register", registerHandler);
+
+export default authRoutes;

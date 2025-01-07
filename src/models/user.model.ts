@@ -1,13 +1,41 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import { compareValues, hashValue } from "../utils/bcrypt";
 
-const userSchema = new mongoose.Schema({
-    fullName: {
-        type: String,
-        required: true
-    },
-    imageUrl: {
-        type: String,
-        required: true,
-        unique: false
-    }
-})
+export interface User extends mongoose.Document {
+  email: string;
+  username: string;
+  password: string;
+  verified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword: (password: string) => Promise<boolean>;
+}
+
+const userSchema = new mongoose.Schema<User>(
+  {
+    email: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    verified: { type: Boolean, default: false, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  this.password = await hashValue(this.password);
+  next();
+});
+
+userSchema.methods.comparePassword = async function (currentPassword: string) {
+  return compareValues(currentPassword, this.password);
+};
+
+const UserModel = mongoose.model<User>("User", userSchema);
+
+export default UserModel;
