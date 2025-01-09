@@ -1,13 +1,17 @@
 import { Response } from "express";
 import {
+  emailSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   verificationCodeScehma,
 } from "../schemas/auth.schema";
 import {
   createAccount,
   loginUser,
   refreshUserAccessToken,
+  resetPassword,
+  sendPasswordResetEmail,
   verifyEmail,
 } from "../services/auth.service";
 import catchErrors from "../utils/catchError";
@@ -100,5 +104,30 @@ export const verifyEmailHandler = catchErrors(async (req, res) => {
 
   return res.status(200).json({
     message: "Email verified successfully!",
+  });
+});
+
+//sendPaswordResetHandler
+export const sendPaswordResetHandler = catchErrors(async (req, res) => {
+  const email = emailSchema.parse(req.body.email);
+
+  //call service
+  await sendPasswordResetEmail(email);
+
+  return res.status(200).json({
+    message: "Password reset email sent successfully!",
+  });
+});
+
+//reset password handler
+export const resetPasswordHandler = catchErrors(async (req, res) => {
+  const body = resetPasswordSchema.parse(req.body);
+
+  //call the reset password service
+  await resetPassword(body);
+  clearAuthCookies(res);
+
+  return res.status(200).json({
+    message: "Password reset successfully!",
   });
 });

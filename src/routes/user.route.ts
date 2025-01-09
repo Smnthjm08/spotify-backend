@@ -1,9 +1,9 @@
 import { Router } from "express";
+import { getUserHandler } from "../controllers/user.controller";
 
-const router = Router();
+const userRoutes = Router();
 
-router.get("/", (req, res) => {
-  res.send("Hello from user route GET method");
-});
+// prefix: /user
+userRoutes.get("/", getUserHandler);
 
-export default router;
+export default userRoutes;

@@ -5,6 +5,8 @@ import {
   logoutHandler,
   refreshHandler,
   verifyEmailHandler,
+  sendPaswordResetHandler,
+  resetPasswordHandler,
 } from "../controllers/auth.controller";
 
 const authRoutes = Router();
@@ -18,6 +20,7 @@ authRoutes.post("/login", loginHandler);
 authRoutes.get("/logout", logoutHandler);
 authRoutes.get("/refresh", refreshHandler);
 authRoutes.get("/email/verify/:code", verifyEmailHandler);
-authRoutes.post("/password/forgot", verifyEmailHandler);
+authRoutes.post("/password/forgot", sendPaswordResetHandler);
+authRoutes.post("/password/reset", resetPasswordHandler);
 
 export default authRoutes;

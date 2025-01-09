@@ -11,6 +11,8 @@ import albumRoutes from "./routes/album.route";
 import statsRoutes from "./routes/stats.route";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/errorHandler";
+import authenticateUser from "./middlewares/authenticateUser";
+import sessionRoutes from "./routes/session.route";
 
 dotenv.config();
 
@@ -38,10 +40,13 @@ app.use(errorHandler);
 
 app.use("/api/auth", authRoutes);
 
-app.use("/api/users", userRoutes);
+app.use("/api/user", authenticateUser, userRoutes);
+app.use("/api/sessions", authenticateUser, sessionRoutes);
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/songs", songRoutes);
 app.use("/api/album", albumRoutes);
+app.use("/api/stats", statsRoutes);
 app.use("/api/stats", statsRoutes);
 
 app.listen(PORT, () => {

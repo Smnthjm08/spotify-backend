@@ -3,8 +3,7 @@ import UserModel from "../models/user.model";
 import VerificationCodeModel, {
   VerificationCodeType,
 } from "../models/verificationCode.model";
-import jwt from "jsonwebtoken";
-import { APP_ORIGIN, JWT_REFRESH_SECRET, JWT_SECRET } from "../utils/env";
+import { APP_ORIGIN } from "../utils/env";
 import appAssert from "../utils/appAssert";
 import { CONFLICT, UNAUTHORIZED } from "../utils/http";
 import {
@@ -14,7 +13,12 @@ import {
   verifyToken,
 } from "../lib/jwt";
 import { sendMail } from "../utils/sendMail";
-import { getVerifyEmailTemplate } from "../utils/emailTemplates";
+import {
+  getPasswordResetTemplate,
+  getVerifyEmailTemplate,
+} from "../utils/emailTemplates";
+import { coder } from "@project-serum/anchor/dist/cjs/native/system";
+import { hashValue } from "../utils/bcrypt";
 
 export type CreateAccountParams = {
   email: string;
@@ -23,14 +27,20 @@ export type CreateAccountParams = {
   userAgent?: string;
 };
 
-export type loginAccountParams = {
+export type LoginAccountParams = {
   email: string;
   password: string;
   username?: string;
   userAgent?: string;
 };
 
+type ResetPasswordParams = {
+  password: string;
+  verificationCode: string;
+};
+
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 const THIRTY_DAYS_FROM_NOW = 30 * 24 * 60 * 60 * 1000;
 
 export const createAccount = async (data: CreateAccountParams) => {
@@ -93,7 +103,7 @@ export const loginUser = async ({
   email,
   password,
   userAgent,
-}: loginAccountParams) => {
+}: LoginAccountParams) => {
   //get user by email or username
   const user = await UserModel.findOne({ email });
   appAssert(user, UNAUTHORIZED, "Invalid email or password");
@@ -182,6 +192,76 @@ export const verifyEmail = async (code: string) => {
 
   // delete verifcation code
   await VerificationCodeModel.deleteOne();
+
+  return {
+    user: updatedUser.omitPassword(),
+  };
+};
+
+//sendPaswordResetHandler
+export const sendPasswordResetEmail = async (email: string) => {
+  // Find the user by email
+  const user = await UserModel.findOne({ email });
+  appAssert(user, UNAUTHORIZED, "User not found");
+
+  // Create verification code
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  const verificationCode = await VerificationCodeModel.create({
+    userId: user._id,
+    type: VerificationCodeType.PasswordReset,
+    expiresAt,
+  });
+
+  // Send verification email
+  const url = `${APP_ORIGIN}/password/reset?code=${
+    verificationCode._id
+  }&exp=${expiresAt.getTime()}`;
+
+  try {
+    const { data } = await sendMail({
+      to: user.email,
+      ...getPasswordResetTemplate(url),
+    });
+    console.log("Email send response:", data); // Log the response
+    appAssert(data, 500, "Failed to send email");
+
+    // Return success
+    return { url, emailId: data };
+  } catch (error) {
+    console.error("Error sending email:", error); // Log the error
+    appAssert(user, 500, "Failed to send email");
+  }
+};
+
+//reset password service
+export const resetPassword = async ({
+  password,
+  verificationCode,
+}: ResetPasswordParams) => {
+
+  
+  // get the verification code
+  //PENDING: check if the code is valid
+  const validCode = await VerificationCodeModel.findOne({
+    _id: verificationCode,
+    type: VerificationCodeType.PasswordReset,
+    expiresAt: { $gt: new Date() },
+  });
+  appAssert(validCode, 404, "Invalid or expired verification code");
+
+  // update the user password
+  const updatedUser = await UserModel.findByIdAndUpdate(validCode.userId, {
+    password: await hashValue(password),
+  });
+  appAssert(updatedUser, 500, "Internal Server Error");
+
+  // delete the verification code
+  await validCode.deleteOne();
+
+  // delete all the session
+  await SessionModel.deleteMany({
+    userId: updatedUser._id,
+  });
 
   return {
     user: updatedUser.omitPassword(),
