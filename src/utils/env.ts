@@ -14,5 +14,5 @@ const getEnv = (key: string, defaultValue?: string): string => {
   export const APP_ORIGIN = getEnv("APP_ORIGIN", "");
   export const JWT_SECRET = getEnv("JWT_SECRET", "nknkdfnbkdf");
   export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET", "bhghghyg");
-  export const EMAIL_SENDER = getEnv("EMAIL_SENDER", "");
+  export const EMAIL_SENDER = getEnv("EMAIL_SENDER", "sumanthjmm.08@gmail.com");
   export const RESEND_API_KEY = getEnv("RESEND_API_KEY", "");

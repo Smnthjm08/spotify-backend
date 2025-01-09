@@ -22,3 +22,5 @@ export const loginSchema = z.object({
   // username: usernameSchema,
   password: passwordSchema,
 });
+
+export const verificationCodeScehma = z.string().min(1).max(24);

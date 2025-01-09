@@ -24,4 +24,6 @@ jspm_packages/
 *.tsbuildinfo
 dist/
 
+.env.local
+.env
 .env
