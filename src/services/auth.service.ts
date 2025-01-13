@@ -19,6 +19,7 @@ import {
 } from "../utils/emailTemplates";
 import { coder } from "@project-serum/anchor/dist/cjs/native/system";
 import { hashValue } from "../utils/bcrypt";
+import mongoose from "mongoose";
 
 export type CreateAccountParams = {
   email: string;
@@ -72,7 +73,7 @@ export const createAccount = async (data: CreateAccountParams) => {
     expiresAt: new Date(Date.now() + 20 * 1000 * 60 * 60 * 24),
   });
 
-  const url = `${APP_ORIGIN}/email/verify/${vericationCode._id}`;
+  const url = `${APP_ORIGIN}/verify-email/${vericationCode._id}`;
 
   // send email with verification code
   // Property 'error' does not exist on type 'void'.ts(2339)
@@ -174,24 +175,30 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
 };
 
 export const verifyEmail = async (code: string) => {
-  //get verification code
+  const trimmedCode = code.trim();
+  
+  if (!mongoose.Types.ObjectId.isValid(trimmedCode)) {
+    throw new Error('Invalid verification code format');
+  }
+
+  // Get verification code
   const validCode = await VerificationCodeModel.findOne({
-    _id: code,
+    _id: trimmedCode,
     type: VerificationCodeType.EmailVerification,
     expiresAt: { $gt: Date.now() },
   });
+  
   appAssert(validCode, 404, "Invalid or expired verification code");
 
-  //update user to be verified
   const updatedUser = await UserModel.findByIdAndUpdate(
     validCode.userId,
-    { isVerified: true },
+    { verified: true },
     { new: true }
   );
   appAssert(updatedUser, 500, "Failed to update user");
 
-  // delete verifcation code
-  await VerificationCodeModel.deleteOne();
+  // Delete verification code - FIXED: Added proper filter
+  await VerificationCodeModel.deleteOne({ _id: trimmedCode });
 
   return {
     user: updatedUser.omitPassword(),
@@ -213,7 +220,7 @@ export const sendPasswordResetEmail = async (email: string) => {
   });
 
   // Send verification email
-  const url = `${APP_ORIGIN}/password/reset?code=${
+  const url = `${APP_ORIGIN}/reset-password?code=${
     verificationCode._id
   }&exp=${expiresAt.getTime()}`;
 
@@ -238,8 +245,6 @@ export const resetPassword = async ({
   password,
   verificationCode,
 }: ResetPasswordParams) => {
-
-  
   // get the verification code
   //PENDING: check if the code is valid
   const validCode = await VerificationCodeModel.findOne({

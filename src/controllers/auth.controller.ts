@@ -100,9 +100,10 @@ export const refreshHandler = catchErrors(async (req, res) => {
 export const verifyEmailHandler = catchErrors(async (req, res) => {
   const verificationCode = verificationCodeScehma.parse(req.params.code);
 
-  await verifyEmail(verificationCode);
+  const response = await verifyEmail(verificationCode);
 
   return res.status(200).json({
+    data: response,
     message: "Email verified successfully!",
   });
 });

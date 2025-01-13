@@ -20,7 +20,7 @@ authRoutes.post("/login", loginHandler);
 authRoutes.get("/logout", logoutHandler);
 authRoutes.get("/refresh", refreshHandler);
 authRoutes.get("/email/verify/:code", verifyEmailHandler);
-authRoutes.post("/password/forgot", sendPaswordResetHandler);
-authRoutes.post("/password/reset", resetPasswordHandler);
+authRoutes.post("/forgot-password", sendPaswordResetHandler);
+authRoutes.post("/reset-password", resetPasswordHandler);
 
 export default authRoutes;
