@@ -1,9 +1,13 @@
 import { Router } from "express";
+import authenticateUser from "../middlewares/authenticateUser";
+import { getAlbumById, getAllAlbums } from "../controllers/album.controller";
 
-const router = Router();
+const albumRouter = Router();
 
-router.get("/", (req, res) => {
-  res.send("Hello from album route GET method");
-});
+// No need to authenticate user for album routes
+// albumRouter.use(authenticateUser);
 
-export default router;
+albumRouter.get("/", getAllAlbums);
+albumRouter.get("/:id", getAlbumById);
+
+export default albumRouter;

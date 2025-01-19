@@ -1,9 +1,19 @@
 import { Router } from "express";
+import {
+  getAllSongs,
+  getFeaturedSongs,
+  getMadeForYouSongs,
+  getSongById,
+  getTrendingSongs,
+} from "../controllers/song.controller";
+import authenticateUser from "../middlewares/authenticateUser";
 
-const router = Router();
+const songRouter = Router();
 
-router.get("/", (req, res) => {
-  res.send("Hello from song route GET method");
-});
+songRouter.get("/", authenticateUser, getAllSongs);
+songRouter.get("/:id", authenticateUser, getSongById);
+songRouter.get("/made-for-you", authenticateUser, getMadeForYouSongs);
+songRouter.get("/trending", authenticateUser, getTrendingSongs);
+songRouter.get("/featured", authenticateUser, getFeaturedSongs);
 
-export default router;
+export default songRouter;

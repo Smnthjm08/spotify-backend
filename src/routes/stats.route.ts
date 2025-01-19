@@ -1,9 +1,9 @@
 import { Router } from "express";
+import { getStats } from "../controllers/stats.controller";
 
-const router = Router();
+const statsRoute = Router();
 
-router.get("/", (req, res) => {
-  res.send("Hello from stats route GET method");
-});
+// needs to be upadated after the UI
+statsRoute.get("/", getStats);
 
-export default router;
+export default statsRoute;
