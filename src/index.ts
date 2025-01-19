@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDb } from "./lib/db";
+import fileUpload from "express-fileupload";
+import path from "path";
 
 import userRoutes from "./routes/user.route";
 import adminRoutes from "./routes/admin.route";
@@ -17,6 +19,7 @@ import sessionRoutes from "./routes/session.route";
 dotenv.config();
 
 const app = express();
+// const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +30,16 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: path.join(__dirname, "temp"),
+    createParentPath: true,
+    limits: {
+      fileSize: 10 * 1024 * 1024, //10mb max file size
+    },
+  })
+);
 
 const PORT = process.env.PORT || 5001;
 

@@ -1,9 +1,21 @@
 import { Router } from "express";
+import authenticateUser from "../middlewares/authenticateUser";
+import { deleteAlbum } from "../controllers/admin.controller";
+import {
+  createAlbum,
+  createSong,
+  deleteSong,
+} from "../controllers/admin.controller";
 
-const router = Router();
+const adminRouter = Router();
 
-router.get("/", (req, res) => {
-  res.send("Admin route");
-});
+adminRouter.use(authenticateUser);
+// adminRouter.get("/check", authenticateUser, isUserAdmin, checkAdmin )
 
-export default router;
+adminRouter.post("/songs", createSong);
+adminRouter.delete("/songs/:id", deleteSong);
+
+adminRouter.post("/albums", createAlbum);
+adminRouter.delete("/albums/:id", deleteAlbum);
+
+export default adminRouter;
