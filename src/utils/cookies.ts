@@ -2,7 +2,7 @@ import { CookieOptions, Response } from "express";
 import { NODE_ENV } from "./env";
 
 export const REFRESH_PATH = "/auth/refresh";
-const secure = process.env.NODE_ENV !== "development";
+const secure = NODE_ENV !== "development";
 
 const defaults: CookieOptions = {
   sameSite: "strict",

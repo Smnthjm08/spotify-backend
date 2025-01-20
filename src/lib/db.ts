@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { MONGO_URI } from "../utils/env";
 
 export const connectDb = async () => {
   try {
     console.log("Connecting to database...");
-    const mongoUrl = process.env.MONGODB_URI;
+    const mongoUrl = MONGO_URI;
     if (!mongoUrl) {
       throw new Error("MONGODB_URI is not defined");
     }

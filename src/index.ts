@@ -15,17 +15,18 @@ import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/errorHandler";
 import authenticateUser from "./middlewares/authenticateUser";
 import sessionRoutes from "./routes/session.route";
+import { APP_ORIGIN, PORT } from "./utils/env";
 
-dotenv.config();
 
 const app = express();
 // const __dirname = path.resolve();
 
+dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: process.env.APP_ORIGIN,
+    origin: APP_ORIGIN,
     credentials: true,
   })
 );
@@ -41,7 +42,7 @@ app.use(
   })
 );
 
-const PORT = process.env.PORT || 5001;
+const CURR_PORT = PORT || 5001;
 
 // app.get("/", (_, res) => {
 //   return res.status(200).json({
@@ -61,7 +62,7 @@ app.use("/api/songs", songRoutes);
 app.use("/api/album", albumRoutes);
 app.use("/api/stats", statsRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(CURR_PORT, () => {
+  console.log(`Server is running on port ${CURR_PORT}`);
   connectDb();
 });

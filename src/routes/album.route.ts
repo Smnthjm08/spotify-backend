@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authenticateUser from "../middlewares/authenticateUser";
 import { getAlbumById, getAllAlbums } from "../controllers/album.controller";
 
 const albumRouter = Router();

@@ -23,10 +23,10 @@ const handleAppError = (res: Response, error: AppError) => {
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
   console.log(`PATH ${req.path}`, error);
 
-  if (process.env.NODE_ENV === "production") {
+  if (NODE_ENV === "production") {
     res.status(500).json("Internal server error");
   }
-  if (process.env.NODE_ENV !== "production") {
+  if (NODE_ENV !== "production") {
     res.status(500).json({ "Internal server error": error.message });
   }
 
