@@ -18,7 +18,7 @@ export const getAllUsers = catchErrors(async (req, res) => {
 
     res.status(200).json(users);
   } catch (error) {
-    console.log("Error at getAlbum", error);
+    console.log("Error at getAllUser", error);
     res.status(500).json({ message: "Internal server Error", error });
   }
 });

@@ -4,7 +4,7 @@ import catchErrors from "../utils/catchError";
 export const getAllAlbums = catchErrors(async (req, res) => {
   try {
     const albums = await AlbumModel.find();
-    console.log(">>", albums);
+    res.status(200).json(albums);
   } catch (error) {
     console.log("Error at getAllAlbums", error);
     res.status(500).json({ message: "Internal server Error", error });
@@ -23,7 +23,7 @@ export const getAlbumById = catchErrors(async (req, res) => {
 
     res.status(200).json(album);
   } catch (error) {
-    console.log("Error at getAlbum", error);
+    console.log("Error at getAlbumById", error);
     res.status(500).json({ message: "Internal server Error", error });
   }
 });
